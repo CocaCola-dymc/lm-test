@@ -91,7 +91,6 @@ export default {
 
 <style scoped>
 .box_user{
-  background-color: white;
   border-bottom: 1px solid #ccc;
   height: 240rpx;
   display: flex;
@@ -106,7 +105,6 @@ export default {
   font-weight: bold;
 }
 .box{
-  background-color: white;
   height: 120rpx;
   display: flex;
   align-items: center;

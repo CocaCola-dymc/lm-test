@@ -3,13 +3,12 @@
     <!-- 头部区域 -->
     <div class="header">
         <!-- logo -->
-        <div class="logo">
-            <h2>项目名称</h2>
+        <div class="title">
+            <h2>LmTest</h2>
         </div>
         <!-- 用户界面 -->
-        <div class="user">
-            <img :src="avatarUrl">
-            <p>{{ nickName }}</p>                
+        <div v-if="!add_flag" class="add" @click="add">
+            添加设备            
         </div>
     </div>
 
@@ -26,10 +25,24 @@
 
     </div> -->
 
-    <div class="buttons">
+    <div class="functions" v-if="add_flag">
       <van-button icon="bars" type="info" @click="data">环境数据</van-button>
       <van-button icon="location" type="primary" @click="location">实时定位</van-button>
       <van-button icon="bell" type="danger" @click="alarm">报警信息</van-button>
+    </div>
+    <div class="device" v-else>
+      <van-field
+        type="text"
+        label="设备序列号"
+        placeholder="请输入设备序列号"
+        :value="devicename"
+        @input="devicename = $event.mp.detail"
+        @blur="checkDeviceName"
+      />
+      <div class="buttons">
+        <van-button type="danger" @click="onCancel">取消</van-button>
+        <van-button type="primary" @click="onConfirm">确定</van-button>
+      </div>
     </div>
 
   </div>
@@ -37,33 +50,74 @@
 
 <script>
 
-
 export default {
   data () {
     return {
       columns: [50, 100, 200, 500, 1000],
       choose_flag: false,
+      add_flag: false,
+      devicename: '',
       avatarUrl: '',
       nickName: ''
     }
   },
 
   methods:{
+    //跳转到环境数据页面
     data(){
       wx.navigateTo({
         url: '/pages/showmsg/main'
       })
     },
+    //跳转到实时定位页面
     location(){
       wx.navigateTo({
         url: '/pages/gpsshow/main'
       })
     },
+    //跳转到报警信息页面
     alarm(){
       wx.navigateTo({
         url: '/pages/alarminfo/main'
       })
     },
+
+    //添加设备
+    add(){
+      this.add_flag = true
+    },
+
+    checkDeviceName(){
+      //使用正则表达式验证设备序列名是否合法
+      let devicenameRegExp = /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/
+      if(devicenameRegExp.test(this.devicename)){
+        return true;
+      }else{
+        wx.showToast({
+          title: '设备序列名不合法',
+          icon: 'error',
+          duration: 1000
+        })
+        return false;
+      }
+    },
+
+    onCancel(){
+      this.add_flag = false
+      //将文本框的数据清空
+      this.devicename = ''
+    },
+
+    //添加设备的函数，将数据插入到数据库
+    onConfirm(){
+      //如果通过了验证，则开始操作数据库
+      if(checkDeviceName){
+        wx.request({
+
+        })
+      }
+    }
+
   },
 
   onLoad(){
@@ -90,46 +144,50 @@ body{
 /* 头部区域 */
 .header{
   width:100%;
-  height:60px;
+  height:120rpx;
   display:flex;
   justify-content: space-between;
   background-color: #30373b;
   align-items: center;
 }
-.logo{
+.title{
   margin-left: 40rpx;
   color: white;
+  font-weight: bold;
 }
-.user{
+.add{
   margin-right: 40rpx;
   display:flex;
   justify-content: space-between;
   align-items: center;
-}
-.user p{
-  color:white;
-}
-.user img{
-width: 50px;
-height: 50px;
-border-radius: 50%;
-overflow: hidden;
-margin-right: 10px;  
+  color: white;
 }
 
-.buttons{
+.functions{
   width: 100%;
-  height: 300px;
-  margin-top: 50px;
+  height: 600rpx;
+  margin-top: 100rpx;
   display: flex;
   justify-content: space-around;
   flex-direction: column;
   align-items: center;
 }
+.device{
+  margin-top: 200rpx;
+}
+.buttons{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 100rpx;
+}
 </style>
 
 <style>
+.functions .van-button{
+  width: 320rpx;
+}
 .buttons .van-button{
-  width: 160px;
+  width: 160rpx;
 }
 </style>
