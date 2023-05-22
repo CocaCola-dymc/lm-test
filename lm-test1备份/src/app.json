@@ -1,0 +1,60 @@
+{
+  "pages": [
+    "pages/welcome/main",
+    "pages/mine/main",
+    "pages/index/main",
+    "pages/gpsshow/main",
+    "pages/alarminfo/main",
+    "pages/showmsg/main",
+    "pages/settings/main",
+    "pages/information/main"
+  ],
+  "permission":{
+    "scope.userLocation":{
+      "desc":"你的位置信息将用于小程序位置接口的效果展示"
+    }
+  },
+  "requiredPrivateInfos":[
+    "getLocation",
+    "onLocationChange",
+    "startLocationUpdate",
+    "startLocationUpdateBackground"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999",
+    "backgroundColor": "#fafafa",
+    "selectedColor": "#333",
+    "borderStyle": "white",
+
+    "list": [{
+      "text": "首页",
+      "pagePath": "pages/index/main",
+      "iconPath": "static/tabs/home.png",
+      "selectedIconPath": "static/tabs/home-active.png"
+    }, {
+      "text": "订单",
+      "pagePath": "pages/mine/main",
+      "iconPath": "static/tabs/mine.png",
+      "selectedIconPath": "static/tabs/mine-active.png"
+    }],
+    "position": "bottom"
+  },
+  "usingComponents": {
+    "van-button": "@vant/weapp/button/index",
+    "van-image": "@vant/weapp/image/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tabs": "@vant/weapp/tabs/index",
+    "van-row": "@vant/weapp/row/index",
+    "van-col": "@vant/weapp/col/index",
+    "van-divider": "@vant/weapp/divider/index",
+    "van-picker": "@vant/weapp/picker/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-action-sheet": "@vant/weapp/action-sheet/index"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "description": "项目配置文件。",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "condition": false,
+    "enhance": true,
+    "ignoreDevUnusedFiles": false,
+    "ignoreUploadUnusedFiles": false,
+    "packNpmManually": true,
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./package.json",
+        "miniprogramNpmDistDir": "./"
+      }
+    ]
+  },
+  "miniprogramRoot": "dist/wx/",
+  "compileType": "miniprogram",
+  "appid": "wx9e7a075fab251156",
+  "projectname": "lm-test",
+  "condition": {},
+  "libVersion": "2.32.0",
+  "srcMiniprogramRoot": "dist/wx/",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}
