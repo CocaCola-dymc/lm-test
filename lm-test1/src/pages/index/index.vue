@@ -25,7 +25,7 @@
 
     </div> -->
 
-    <div class="functions" v-if="add_flag">
+    <div class="functions" v-if="!add_flag">
       <van-button icon="bars" type="info" @click="data">环境数据</van-button>
       <van-button icon="location" type="primary" @click="location">实时定位</van-button>
       <van-button icon="bell" type="danger" @click="alarm">报警信息</van-button>
@@ -37,6 +37,7 @@
         placeholder="请输入设备序列号"
         :value="devicename"
         @input="devicename = $event.mp.detail"
+        focus
         @blur="checkDeviceName"
       />
       <div class="buttons">
@@ -49,6 +50,8 @@
 </template>
 
 <script>
+//数据库地址
+const baseUrl = "http://112.124.28.149";
 
 export default {
   data () {
@@ -58,7 +61,9 @@ export default {
       add_flag: false,
       devicename: '',
       avatarUrl: '',
-      nickName: ''
+      nickName: '',
+      longitude: '',
+      latitude: ''
     }
   },
 
@@ -89,12 +94,19 @@ export default {
 
     checkDeviceName(){
       //使用正则表达式验证设备序列名是否合法
-      let devicenameRegExp = /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/
+      let devicenameRegExp = /^[a-zA-Z0-9]*$/
+      //如果没有输入字符，则默认序列名为undefined
+      if(this.devicename == ''){
+        console.log('ok')
+        this.devicename = 'undefined'
+        console.log(this.devicename)
+      }
+      //开始匹配正则表达式
       if(devicenameRegExp.test(this.devicename)){
         return true;
       }else{
         wx.showToast({
-          title: '设备序列名不合法',
+          title: '序列名不合法',
           icon: 'error',
           duration: 1000
         })
@@ -111,9 +123,30 @@ export default {
     //添加设备的函数，将数据插入到数据库
     onConfirm(){
       //如果通过了验证，则开始操作数据库
-      if(checkDeviceName){
+      console.log(this.devicename,`${this.longitude} ${this.latitude}`)
+      if(this.checkDeviceName()){
         wx.request({
-
+          url: baseUrl + `/LM.php`,
+          methods: 'POST',
+          header: { 'content-type': 'application/x-www-form-urlencoded'},
+          data:{
+            devicename: this.devicename,
+            GPS: `${this.longitude} ${this.latitude}`,
+            warning: '0'
+          },
+          success:(res)=>{
+            wx.showToast({
+              title: '成功添加设备',
+              icon: 'success',
+              duration: 500
+            })
+            console.log(res)
+            setTimeout(() => {
+              this.add_flag = false
+              this.devicename = ''
+            }, 500);
+            
+          }
         })
       }
     }
@@ -124,6 +157,16 @@ export default {
     //使用全局变量
     this.avatarUrl = this.globalData.avatarUrl
     this.nickName = this.globalData.nickName
+
+    wx.getLocation({
+      type:'gcj02',
+      altitude: true,
+      isHighAccuracy: true,
+      success:(res)=>{
+        this.longitude = res.longitude
+        this.latitude = res.latitude
+      }
+    })
   }
 
 }

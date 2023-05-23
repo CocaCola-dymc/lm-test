@@ -10,14 +10,17 @@
             <van-row class="title">
                 <van-col offset="0" span="4">日期</van-col>
                 <van-col offset="6" span="4">设备号</van-col>
-                <van-col offset="5" span="5">报警状态</van-col>
+                <van-col offset="3" span="5">报警状态</van-col>
             </van-row>
             <van-row class="border">———————————————————————</van-row>
-            <van-row class="table" v-for="(item,index) in dataList" :key="index">
+            <van-row class="table" v-for="(item,index) in dataList" :key="index" @click="onShow(index)">
                 <van-col offset="0" span="8">{{ item.time }}</van-col>
                 <van-col offset="2" span="6">{{ item.devicename }}</van-col>
-                <van-col offset="5" span="3" :class=" item.warning == 0 ? 'text_success':'text_danger'">
+                <van-col offset="3" span="1" :class="item.warning == 0 ? 'text_success':'text_danger'">
                     {{ item.warning }}
+                </van-col>
+                <van-col offset="1" span="3" v-if="index == chooseIndex">
+                    <van-button type="danger" size="mini" @click="onDelete">删除</van-button>
                 </van-col>
                 <van-row class="border">———————————————————————————</van-row>
           </van-row>
@@ -39,10 +42,17 @@ export default {
             dataList: [],           //页面渲染时存放的数据
 			_dataList: null,        //接口传来的数据存放数组
 	     	currentPageNum: 1,      //当前页
+            chooseIndex: -1
         }
     },
     methods:{
-        
+        //获取点击的记录的index，存入chooseIndex中
+        onShow(index){
+            this.chooseIndex = index
+        },
+        onDelete(){
+            console.log('delete ok')
+        }
     },
     onLoad(){
         wx.request({
@@ -146,9 +156,9 @@ export default {
     margin-bottom: 30px;
 }
 .tabledata .title{
-    color: #aaa;
     font-weight: bold;
 }
+
 .text_success{
     color:green;
 }
@@ -160,9 +170,13 @@ export default {
 
 <!-- 覆盖ui组件的样式需要另外新建一个style -->
 <style>
-
 .van-row .border{
     color: #ccc;
+    height: 20px;
 }
+.van-button{
+    height: 5px;
+}
+
 </style>
   

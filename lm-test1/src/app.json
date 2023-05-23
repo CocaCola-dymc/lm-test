@@ -1,10 +1,10 @@
 {
   "pages": [
+    "pages/alarminfo/main",
     "pages/index/main",
     "pages/welcome/main",
     "pages/mine/main",
     "pages/gpsshow/main",
-    "pages/alarminfo/main",
     "pages/showmsg/main",
     "pages/settings/main",
     "pages/information/main"
