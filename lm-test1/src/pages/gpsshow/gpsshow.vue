@@ -27,6 +27,7 @@
                 <van-button type="primary" round @click="show">
                     {{ show_flag ? '隐藏':'显示' }}历史轨迹
                 </van-button>
+                <van-button round @click="position">ok</van-button>
             </div>
             
         </map>
@@ -67,6 +68,11 @@ export default {
             polygons:[],
             circles:[],
             polyline:[],
+
+            data: '',
+            GPS: '',
+            longitudes: '',
+            latitudes: '',
         }
     },
     methods:{
@@ -138,20 +144,21 @@ export default {
             //如果点击了显示历史轨迹
             if(this.show_flag){
                 //显示历史轨迹
-                let a = Math.random()*0.001
                 const polyline = {
                     points:
                     [
-                        {longitude:this.longitude-a,latitude:this.latitude+a},  
-                        {longitude:this.longitude-a,latitude:this.latitude-a},  
-                        {longitude:this.longitude+a,latitude:this.latitude-a},  
-                        {longitude:this.longitude+a,latitude:this.latitude+a},  
+                    //  {longitude:this.data[0].longitude,latitude:this.data[0].latitude},
+                    //  {longitude:this.data[1].longitude,latitude:this.data[1].latitude}
                     ],
                     color: '#aaa',
                     width:2
                 }
+                for(let i=0;i<5;i++){
+                    polyline.points.push(longitude=this.data[i].longitude,latitude=this.data[i].latitude)
+                }
+                
                 this.polyline.push(polyline)
-
+            
                 //循环显示历史轨迹的点上做标记点
                 for(var i=0;i<polyline.points.length;i++){
                     const marker = {
@@ -174,14 +181,24 @@ export default {
                             height:32,
                         }]
             }
-            
-            
-        }
+        },
+        position(){
+            console.log(`${this.longitude},${this.latitude}`)
+        },
+
     },
     onLoad(){
         //精确值
         // latitude:  23.102934
         // longitude: 113.535982
+
+        //地图第一次加载需要时间，使用Toast提示
+        wx.showToast({
+            title: '加载地图中',
+            icon: 'loading',
+            duartion: 1000,
+            mask: true
+        })
         wx.getLocation({
             type:'gcj02',
             altitude: true,
@@ -204,29 +221,26 @@ export default {
                 this.markers.push(marker)
             }
             
+        }),
+        wx.request({
+            url: baseUrl + `/LMsy.php`,
+            methods: 'GET',
+            // header: { 'content-type': 'application/x-www-form-urlencoded'},
+            success:(res)=>{
+                let data = res.data.users;
+                //先将data中的GPS成员分割成经纬度，在放入data中变成data的成员
+                for(let i=0;i<5;i++){
+                    data[i].latitude = data[i].GPS.slice(0,9)
+                    data[i].longitude = data[i].GPS.slice(10,22)
+                }
+                this.data = data;
+            }
         })
+    },
 
-        // wx.request({
-            
-        //     url: baseUrl + `/LM.php`,
-        //     methods: 'GET',
-        //     header: { 'content-type': 'application/x-www-form-urlencoded'},
-
-        //     success:(res)=>{
-        //         let msg = JSON.parse(JSON.stringify(res.data));
-        //         console.log(res.data)
-        //         console.log(msg.uesrs)
-        //         // 将获取的数据转化为字符串
-        //         const str = (msg.uesrs[msg.uesrs.length-1].GPS).toString();
-        //         console.log(str);
-        //         // 根据空格分隔字符
-        //         this.center.lng = str.split(' ')[1];//经度
-        //         this.center.lat = str.split(' ')[0];//纬度
-        //         console.log(this.center.lng);
-        //         console.log(this.center.lat);
-        //     }
-        // })
-
+    onShow(){
+        //初始化为2d地图，并且每次加载默认值为2d地图
+        this.satellite_flag = false
     }
 
 }

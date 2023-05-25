@@ -19,7 +19,7 @@
                 <van-col offset="3" span="1" :class="item.warning == 0 ? 'text_success':'text_danger'">
                     {{ item.warning }}
                 </van-col>
-                <van-col offset="1" span="3" v-if="index == chooseIndex">
+                <van-col offset="1" span="3" v-if="index == chooseIndex && show_flag">
                     <van-button type="danger" size="mini" @click="onDelete">删除</van-button>
                 </van-col>
                 <van-row class="border">———————————————————————————</van-row>
@@ -42,12 +42,15 @@ export default {
             dataList: [],           //页面渲染时存放的数据
 			_dataList: null,        //接口传来的数据存放数组
 	     	currentPageNum: 1,      //当前页
-            chooseIndex: -1
+            chooseIndex: -1,
+            show_flag: false
         }
     },
     methods:{
         //获取点击的记录的index，存入chooseIndex中
         onShow(index){
+            //设置一个标志位，实现点击一次显示删除按钮，再点击一次隐藏按钮
+            this.show_flag = !this.show_flag
             this.chooseIndex = index
         },
         onDelete(){
@@ -56,11 +59,11 @@ export default {
     },
     onLoad(){
         wx.request({
-            url: baseUrl + `/LM.php`,
+            url: baseUrl + `/LMsy.php`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{
-                let data = res.data.uesrs;
+                let data = res.data.users;
 
                 //统计报警状态为1的记录数目
                 let alarm = 0

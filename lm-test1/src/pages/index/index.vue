@@ -97,9 +97,7 @@ export default {
       let devicenameRegExp = /^[a-zA-Z0-9]*$/
       //如果没有输入字符，则默认序列名为undefined
       if(this.devicename == ''){
-        console.log('ok')
         this.devicename = 'undefined'
-        console.log(this.devicename)
       }
       //开始匹配正则表达式
       if(devicenameRegExp.test(this.devicename)){
@@ -123,16 +121,15 @@ export default {
     //添加设备的函数，将数据插入到数据库
     onConfirm(){
       //如果通过了验证，则开始操作数据库
-      console.log(this.devicename,`${this.longitude} ${this.latitude}`)
       if(this.checkDeviceName()){
         wx.request({
-          url: baseUrl + `/LM.php`,
+          url: baseUrl + `/LMsy.php`,
           methods: 'POST',
           header: { 'content-type': 'application/x-www-form-urlencoded'},
           data:{
             devicename: this.devicename,
             GPS: `${this.longitude} ${this.latitude}`,
-            warning: '0'
+            warning: 0
           },
           success:(res)=>{
             wx.showToast({
