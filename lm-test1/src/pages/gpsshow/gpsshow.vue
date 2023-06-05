@@ -27,7 +27,6 @@
                 <van-button type="primary" round @click="show">
                     {{ show_flag ? '隐藏':'显示' }}历史轨迹
                 </van-button>
-                <van-button round @click="position">ok</van-button>
             </div>
             
         </map>
@@ -144,20 +143,13 @@ export default {
             //如果点击了显示历史轨迹
             if(this.show_flag){
                 //显示历史轨迹
-                const polyline = {
-                    points:
-                    [
-                    //  {longitude:this.data[0].longitude,latitude:this.data[0].latitude},
-                    //  {longitude:this.data[1].longitude,latitude:this.data[1].latitude}
-                    ],
-                    color: '#aaa',
+                let polyline = {
+                    points: this.points,
+                    color: '#000',
                     width:2
                 }
-                for(let i=0;i<5;i++){
-                    polyline.points.push(longitude=this.data[i].longitude,latitude=this.data[i].latitude)
-                }
-                
                 this.polyline.push(polyline)
+                
             
                 //循环显示历史轨迹的点上做标记点
                 for(var i=0;i<polyline.points.length;i++){
@@ -174,18 +166,14 @@ export default {
             }else{
                 this.polyline = []
                 this.markers = [{
-                            id: 0,
-                            longitude:this.longitude,
-                            latitude:this.latitude,
-                            width:20,
-                            height:32,
-                        }]
+                    id: 0,
+                    longitude:this.longitude,
+                    latitude:this.latitude,
+                    width:20,
+                    height:32,
+                }]
             }
-        },
-        position(){
-            console.log(`${this.longitude},${this.latitude}`)
-        },
-
+        }
     },
     onLoad(){
         //精确值
@@ -222,20 +210,51 @@ export default {
             }
             
         }),
+
+
+        // this.longitude = 113.535982
+        // this.latitude = 23.102934
+        // //中心点放置marker
+        // const marker = {
+        //     id: 0,
+        //     longitude:this.longitude,
+        //     latitude:this.latitude,
+        //     width:20,
+        //     height:32,
+        // }
+        // this.markers.push(marker)
+
+
+
         wx.request({
-            url: baseUrl + `/LMsy.php`,
+            url: baseUrl + `/LMsy.php?action=read`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{
                 let data = res.data.users;
                 //先将data中的GPS成员分割成经纬度，在放入data中变成data的成员
-                for(let i=0;i<5;i++){
+                for(let i=0;i<data.length;i++){
                     data[i].latitude = data[i].GPS.slice(0,9)
                     data[i].longitude = data[i].GPS.slice(10,22)
                 }
                 this.data = data;
+
+                //历史轨迹所经过的点
+                let points = [];
+                let point;
+                //去最后的10个点作为历史点位
+                for(let i=data.length-10;i<data.length;i++){
+                    point = {};     //每一次循环都将point清空一下
+                    point.longitude = this.data[i].longitude;
+                    point.latitude = this.data[i].latitude;
+                    points.push(point)
+                }
+                this.points = points;
+                console.log(this.points)
+                
             }
         })
+
     },
 
     onShow(){

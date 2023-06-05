@@ -124,11 +124,12 @@ export default {
       if(this.checkDeviceName()){
         wx.request({
           url: baseUrl + `/LMsy.php`,
-          methods: 'POST',
+          method: 'POST',
           header: { 'content-type': 'application/x-www-form-urlencoded'},
           data:{
+            action: 'insert',
             devicename: this.devicename,
-            GPS: `${this.longitude} ${this.latitude}`,
+            GPS: `${this.latitude} ${this.longitude}`,
             warning: 0
           },
           success:(res)=>{
@@ -137,12 +138,11 @@ export default {
               icon: 'success',
               duration: 500
             })
-            console.log(res)
+            // console.log(res)
             setTimeout(() => {
               this.add_flag = false
               this.devicename = ''
             }, 500);
-            
           }
         })
       }
@@ -160,8 +160,8 @@ export default {
       altitude: true,
       isHighAccuracy: true,
       success:(res)=>{
-        this.longitude = res.longitude
-        this.latitude = res.latitude
+        this.longitude = res.longitude.toFixed(6)
+        this.latitude = res.latitude.toFixed(6)
       }
     })
   }

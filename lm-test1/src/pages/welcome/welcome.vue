@@ -5,12 +5,12 @@
         <van-image width="100" height="100" round :src="userInfo.avatarUrl"/>
         <div class="userInfo-nickname">{{ userInfo.nickName }}</div>
         <div class="loginbox">
-          <van-button class="userLogin" type="primary" v-if="canIUseGetUserProfile" @click="getUserProfile">
+          <!-- <van-button class="userLogin" type="primary" v-if="canIUseGetUserProfile" @click="getUserProfile">
             授权登录
           </van-button>
           <van-button class="userLogin" type="primary" v-else open-type="getUserInfo" @click="getUserInfo">
             授权登录
-          </van-button>
+          </van-button> -->
           <van-button class="visitorLogin" @click="visitorLogin">
             游客登录
           </van-button>
@@ -84,7 +84,7 @@ export default {
           i = parseInt(10*Math.random());
           value = value + number.charAt(i);
         }
-        this.userInfo.avatarUrl = require('../../../src/assets/userimg.jpg')
+        this.userInfo.avatarUrl = require('../../../src/assets/userimg.png')
         this.userInfo.nickName =  `微信用户${value}`
 
         this.hasUserInfo = true
@@ -133,8 +133,8 @@ export default {
     box-sizing: content-box;
     padding: 20rpx 0;
     width: 90%;
-    height: 700rpx;
-    margin: 20rpx auto;
+    height: 950rpx;
+    margin: 200rpx auto;
     background:linear-gradient(109.6deg, rgb(204, 228, 247) 11.2%, rgb(237, 246, 250) 100.2%);
     /* background-image:image("../../images/cloudbg.jpg"); */
     text-align: center;
@@ -143,7 +143,7 @@ export default {
 .topContainer {
     width: 100%;
     height: 350rpx;
-    margin-top: 100rpx;
+    margin-top: 175rpx;
 }
 .userInfo-nickname {
   margin-top: 20rpx;

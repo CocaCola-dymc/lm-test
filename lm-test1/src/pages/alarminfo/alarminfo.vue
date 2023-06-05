@@ -12,7 +12,7 @@
                 <van-col offset="6" span="4">设备号</van-col>
                 <van-col offset="3" span="5">报警状态</van-col>
             </van-row>
-            <van-row class="border">———————————————————————</van-row>
+            <van-row class="border">—————————————————————————————————</van-row>
             <van-row class="table" v-for="(item,index) in dataList" :key="index" @click="onShow(index)">
                 <van-col offset="0" span="8">{{ item.time }}</van-col>
                 <van-col offset="2" span="6">{{ item.devicename }}</van-col>
@@ -20,9 +20,9 @@
                     {{ item.warning }}
                 </van-col>
                 <van-col offset="1" span="3" v-if="index == chooseIndex && show_flag">
-                    <van-button type="danger" size="mini" @click="onDelete">删除</van-button>
+                    <van-button type="danger" size="mini" @click="onDelete(item,index)">删除</van-button>
                 </van-col>
-                <van-row class="border">———————————————————————————</van-row>
+                <van-row class="border">—————————————————————————————————</van-row>
           </van-row>
         </div>
         
@@ -43,7 +43,8 @@ export default {
 			_dataList: null,        //接口传来的数据存放数组
 	     	currentPageNum: 1,      //当前页
             chooseIndex: -1,
-            show_flag: false
+            show_flag: false,
+            id: null,
         }
     },
     methods:{
@@ -53,13 +54,39 @@ export default {
             this.show_flag = !this.show_flag
             this.chooseIndex = index
         },
-        onDelete(){
-            console.log('delete ok')
+        onDelete(item,index){
+            wx.showModal({
+                title: '删除',
+                content: '确定删除该信息吗？',
+                success(res){
+                    if(res.confirm){
+                        wx.request({
+                            url: baseUrl + `/LMsy.php`,
+                            method: 'POST',
+                            header: { 'content-type': 'application/x-www-form-urlencoded'},
+                            data:{
+                                action: 'delete',
+                                id: item.id,        //根据设备id删除
+                            },
+                            success:(res)=>{
+                                wx.showToast({
+                                    title: '删除成功',
+                                    icon: 'success',
+                                    duration: 500
+                                })
+                                setTimeout(() => {
+                                    wx.reLaunch({url:'/pages/alarminfo/main'})
+                                }, 500);
+                            }
+                        })
+                    }
+                }
+            })
         }
     },
     onLoad(){
         wx.request({
-            url: baseUrl + `/LMsy.php`,
+            url: baseUrl + `/LMsy.php?action=read`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{

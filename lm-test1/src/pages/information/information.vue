@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <van-button>个人信息</van-button>
+  <div class="info">
+    <span>————————暂无个人信息————————</span>
   </div>
 </template>
 
@@ -10,48 +10,11 @@
 export default {
   data () {
     return {
-      username: '',
-      show: false,
-      actions:[{name:'退出登录',color:'#ee0a24'}],
-      avatarUrl: '',
-      nickName: ''
+
     }
   },
 
   methods:{
-    settings(){
-      wx.navigateTo({
-        url: '/pages/settings/main',
-      }); 
-    },
-
-    chargeRecord(){
-      wx.navigateTo({
-        url: '/pages/charge/main?active=1',   // active=1,切换到内容2
-      })
-    },
-
-    onLogout(){           //点击用户栏弹出退出提示
-      this.show = true;
-    },
-
-    onClose(){
-      this.show = false   //点击屏幕关闭退出提示
-    },
-
-    onSelect(){
-      wx.showToast({
-        title: '已退出登录',
-        icon: 'success',
-        duration: 1000
-      })
-      setTimeout(() => {
-        wx.navigateTo({
-          url: '/pages/welcome/main'
-        })
-      }, 1000);
-      
-    }
 
   },
   
@@ -64,5 +27,10 @@ export default {
 </script>
 
 <style scoped>
-
+.info{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+}
 </style>
