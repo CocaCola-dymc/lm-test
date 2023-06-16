@@ -5,21 +5,25 @@
             <span class="text">{{ data.length }}</span>
             <span class="count">报警次数：</span>
             <span class="text">{{ alarm }}</span>
+            <van-button round class="search" icon="search" @click="onSearch"></van-button>
         </div>
         <div class="tabledata">
             <van-row class="title">
                 <van-col offset="0" span="4">日期</van-col>
                 <van-col offset="6" span="4">设备号</van-col>
-                <van-col offset="5" span="5">报警状态</van-col>
+                <van-col offset="3" span="5">报警状态</van-col>
             </van-row>
-            <van-row class="border">———————————————————————</van-row>
-            <van-row class="table" v-for="(item,index) in dataList" :key="index">
+            <van-row class="border">—————————————————————————————————————</van-row>
+            <van-row class="table" v-for="(item,index) in dataList" :key="index" @click="onShow(index)">
                 <van-col offset="0" span="8">{{ item.time }}</van-col>
                 <van-col offset="2" span="6">{{ item.devicename }}</van-col>
-                <van-col offset="5" span="3" :class=" item.warning == 0 ? 'text_success':'text_danger'">
+                <van-col offset="3" span="1" :class="item.warning == 0 ? 'text_success':'text_danger'">
                     {{ item.warning }}
                 </van-col>
-                <van-row class="border">———————————————————————————</van-row>
+                <van-col offset="1" span="3" v-if="index == chooseIndex && show_flag">
+                    <van-button type="danger" size="mini" @click="onDelete(item,index)">删除</van-button>
+                </van-col>
+                <van-row class="border">—————————————————————————————————————</van-row>
           </van-row>
         </div>
         
@@ -35,22 +39,65 @@ export default {
     data () {
         return {
             data: '',
+            value: '',
+            search_flag: false,
             alarm: 0,
             dataList: [],           //页面渲染时存放的数据
 			_dataList: null,        //接口传来的数据存放数组
 	     	currentPageNum: 1,      //当前页
+            chooseIndex: -1,
+            show_flag: false,
+            id: null,
         }
     },
     methods:{
-        
+        onSearch(){
+            this.search_flag = !this.search_flag
+        },
+        //获取点击的记录的index，存入chooseIndex中
+        onShow(index){
+            //设置一个标志位，实现点击一次显示删除按钮，再点击一次隐藏按钮
+            this.show_flag = !this.show_flag
+            this.chooseIndex = index
+        },
+        onDelete(item,index){
+            // item.id = Number(item.id)
+            wx.showModal({
+                title: '删除',
+                content: '确定删除该信息吗？',
+                success(res){
+                    if(res.confirm){
+                        wx.request({
+                            url: baseUrl + `/LMsy.php`,
+                            method: 'POST',
+                            header: { 'content-type': 'application/x-www-form-urlencoded'},
+                            data:{
+                                action: 'delete',
+                                id: item.id,        //根据设备id删除
+                            },
+                            success:(res)=>{
+                                wx.showToast({
+                                    title: '删除成功',
+                                    icon: 'success',
+                                    duration: 500
+                                })
+                                setTimeout(() => {
+                                    wx.reLaunch({url:'/pages/alarminfo/main'})
+                                }, 500);
+                            }
+                        })
+                    }
+                }
+            })
+        }
     },
     onLoad(){
         wx.request({
-            url: baseUrl + `/LM.php`,
+            url: baseUrl + `/LMsy.php?action=read`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{
-                let data = res.data.uesrs;
+                let data = res.data.users;
 
                 //统计报警状态为1的记录数目
                 let alarm = 0
@@ -86,11 +133,16 @@ export default {
         })
     },
 
+    //卸载页面时将当前页面恢复成第一页，防止重新加载页面时不会往下刷新
+    onUnload(){
+        this.currentPageNum = 1
+    },
+
     onReachBottom(){
         //如果还有数据需要加载
         if(this._dataList && (this.currentPageNum < this._dataList.length)){
                 wx.showToast({
-                title: '加载中!',
+                title: '加载中',
                 icon: 'loading',
                 duration: 500
             })
@@ -146,9 +198,9 @@ export default {
     margin-bottom: 30px;
 }
 .tabledata .title{
-    color: #aaa;
     font-weight: bold;
 }
+
 .text_success{
     color:green;
 }
@@ -160,9 +212,20 @@ export default {
 
 <!-- 覆盖ui组件的样式需要另外新建一个style -->
 <style>
-
 .van-row .border{
     color: #ccc;
+    height: 20px;
 }
+.van-button{
+    height: 5px;
+}
+
+.search .van-button{
+    width: 40px;
+    height: 40px;
+    margin-left: 50px;
+    opacity: 0.7;
+}
+
 </style>
   

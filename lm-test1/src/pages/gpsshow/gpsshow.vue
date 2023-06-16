@@ -67,6 +67,7 @@ export default {
             polygons:[],
             circles:[],
             polyline:[],
+            callout: "",
 
             data: '',
             GPS: '',
@@ -171,6 +172,7 @@ export default {
                     latitude:this.latitude,
                     width:20,
                     height:32,
+                    title: '当前位置'
                 }]
             }
         }
@@ -205,6 +207,7 @@ export default {
                             latitude:this.latitude,
                             width:20,
                             height:32,
+                            title: '当前位置',
                         }
                 this.markers.push(marker)
             }
@@ -227,22 +230,24 @@ export default {
 
 
         wx.request({
-            url: baseUrl + `/LMsy.php?action=read`,
+            // url: baseUrl + `/LMsy.php?action=read`,
+            url: baseUrl + `/lm/doFindLms`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{
                 let data = res.data.users;
                 //先将data中的GPS成员分割成经纬度，在放入data中变成data的成员
                 for(let i=0;i<data.length;i++){
-                    data[i].latitude = data[i].GPS.slice(0,9)
-                    data[i].longitude = data[i].GPS.slice(10,22)
+                    let str = data[i].GPS
+                    data[i].longitude = str.split(' ')[1]   //经度
+                    data[i].latitude  = str.split(' ')[0]   //纬度
                 }
                 this.data = data;
 
                 //历史轨迹所经过的点
                 let points = [];
                 let point;
-                //去最后的10个点作为历史点位
+                //取最后的10个点作为历史点位
                 for(let i=data.length-10;i<data.length;i++){
                     point = {};     //每一次循环都将point清空一下
                     point.longitude = this.data[i].longitude;

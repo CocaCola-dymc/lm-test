@@ -17,7 +17,7 @@
                                 <img src="../../assets/windspeed.png" alt="">
                             </div>
                             <div class="windyspeed-data">
-                                <p>5</p>
+                                <p>{{ windspeed }}</p>
                             </div>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                                 <img src="../../assets/windydirection.png" alt="">
                             </div>
                             <div class="windirection-data">
-                                <p>25</p>
+                                <p>{{ winddirection }}</p>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                                 <img src="../../assets/temp.png" alt="">
                             </div>
                             <div class="temp-data">
-                                <p>20</p>
+                                <p>{{ temp }}</p>
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                                 <img src="../../assets/humi.png" alt="">
                             </div>
                             <div class="humi-data">
-                                <p>20</p>
+                                <p>{{ humidity }}</p>
                             </div>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                                 <img src="../../assets/PM2.5.png" alt="">
                             </div>
                             <div class="pm1-data">
-                                <p>150.8</p>
+                                <p>{{ pm2_5 }}</p>
                             </div>
                         </div>
                     </div>
@@ -99,7 +99,7 @@
                                 <img src="../../assets/PM10.png" alt="">
                             </div>
                             <div class="pm10-data">
-                                <p>150.8</p>
+                                <p>{{ pm10 }}</p>
                             </div>
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                                 <img src="../../assets/atmopress.png" alt="">
                             </div>
                             <div class="atmopress-data">
-                                <p>1015.8</p>
+                                <p>{{ atmos }}</p>
                             </div>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                                 <img src="../../assets/nvh.png" alt="">
                             </div>
                             <div class="nvh-data">
-                                <p>100</p>
+                                <p>{{ noisy }}</p>
                             </div>
                         </div>
                     </div>
@@ -156,45 +156,45 @@
                         <div class="o2box">
                             <div class="o2colorbox"></div>
                             <h3>氧气(O₂)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ o2 }}</p>
                         </div>
                         <div class="co2box">
                             <div class="co2colorbox"></div>
                             <h3>二氧化碳(CO₂)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ co2 }}</p>
                         </div>
 
                         <div class="ch4box">
                             <div class="ch4colorbox"></div>
                             <h3>甲烷(CH4)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ ch4 }}</p>
                         </div>
                         <div class="nh3box">
                             <div class="nh3colorbox"></div>
                             <h3>氨气(NH3)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ nh3 }}</p>
                         </div>
 
                         <div class="so2box">
                             <div class="so2colorbox"></div>
                             <h3>二氧化硫(SO₂)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ so2 }}</p>
                         </div>
                         <div class="cobox">
                             <div class="cocolorbox"></div>
                             <h3>一氧化碳(CO)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ co }}</p>
                         </div>
 
                         <div class="h2obox">
                             <div class="h2ocolorbox"></div>
                             <h3>水(H₂O)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ h2o }}</p>
                         </div>
                         <div class="h2sbox">
                             <div class="h2scolorbox"></div>
                             <h3>硫化氢Y(H₂S)浓度(%)：</h3>
-                            <p>12.5</p>
+                            <p>{{ h2s }}</p>
                         </div>
                     </div>
 
@@ -280,10 +280,30 @@
 //     return chart;
 // }
 
+//数据库地址
+const baseUrl = "http://112.124.28.149";
+
 export default {
     data () {
         return {
             active:0,
+            data: '',
+            windspeed: 0,
+            winddirection: 0,
+            temp: 0,
+            humidity: 0,
+            pm2_5: 0,
+            pm10: 0,
+            atmos: 0,
+            noisy: 0,
+            o2: 0,
+            co2: 0,
+            ch4: 0,
+            nh3: 0,
+            so2: 0,
+            co: 0,
+            h2o: 0,
+            h2s: 0,
             // echarts,
             // onInit: initChart   
         }
@@ -293,12 +313,37 @@ export default {
     //     mpvueEcharts
     // },
 
-
     methods:{
         
     },
 
-
+    onLoad(){
+        wx.request({
+            url: baseUrl + `/LMhj.php?action=read`,
+            methods: 'GET',
+            success:(res)=>{
+                let data = res.data.users;
+                let i = data.length-1;
+                //取数据库中最后一条数据
+                this.windspeed = data[i].windspeed;
+                this.winddirection = data[i].winddirection;
+                this.temp = data[i].temp;
+                this.humidity = data[i].humidity;
+                this.pm2_5 = data[i].pm2_5;
+                this.pm10 = data[i].pm10;
+                this.atmos = data[i].atmos;
+                this.noisy = data[i].noisy;
+                this.o2 = data[i].o2;
+                this.co2 = data[i].co2;
+                this.ch4 = data[i].ch4;
+                this.nh3 = data[i].nh3;
+                this.so2 = data[i].so2;
+                this.co = data[i].co;
+                this.h2o = data[i].h2o;
+                this.h2s = data[i].h2s;
+            }
+        })
+    }
 
 }
 </script>

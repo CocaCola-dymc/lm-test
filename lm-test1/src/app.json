@@ -1,9 +1,9 @@
 {
   "pages": [
-    "pages/index/main",
-    "pages/welcome/main",
     "pages/alarminfo/main",
+    "pages/index/main",
     "pages/gpsshow/main",
+    "pages/welcome/main",
     "pages/mine/main",
     "pages/showmsg/main",
     "pages/settings/main",
@@ -57,7 +57,8 @@
     "van-popup": "@vant/weapp/popup/index",
     "van-action-sheet": "@vant/weapp/action-sheet/index",
     "van-overlay": "@vant/weapp/overlay/index",
-    "van-field": "@vant/weapp/field/index"
+    "van-field": "@vant/weapp/field/index",
+    "van-search": "@vant/weapp/search/index"
 
   }
 }

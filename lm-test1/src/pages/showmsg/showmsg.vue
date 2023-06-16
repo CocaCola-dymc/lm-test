@@ -319,7 +319,7 @@ export default {
 
     onLoad(){
         wx.request({
-            url: baseUrl + '/LMhj.php',
+            url: baseUrl + `/LMhj.php?action=read`,
             methods: 'GET',
             success:(res)=>{
                 let data = res.data.users;

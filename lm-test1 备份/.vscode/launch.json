@@ -1,0 +1,43 @@
+// {
+//     // 使用 IntelliSense 了解相关属性。 
+//     // 悬停以查看现有属性的描述。
+//     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "type": "chrome",
+//             "request": "launch",
+//             "name": "针对 localhost 启动 Chrome",
+//             "url": "http://localhost:8080",
+//             "webRoot": "${workspaceFolder}"
+//         }
+//     ]
+// }
+
+
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+        "type": "chrome", //调试的环境
+        "request": "launch", //调试模式：启动类型
+        "name": "vue", // 自定义调试名称
+        "url": "http://localhost:80", //调试的服务地址，需要和devServer对应
+        "webRoot": "${workspaceFolder}/src", //调试的根路径为src业务目录下
+        "breakOnLoad": true,
+        "sourceMapPathOverrides": { //指定生成的sourceMap路径，参考浏览器生成的 .目录和src目录
+            // "webpack:///src/*": "${webRoot}/*",
+            // "webpack:///./src/*": "${webRoot}/*"
+            "webpack:///./*": "${webRoot}/*",
+            "webpack:///src/*": "${webRoot}/*",
+            // "webpack:///./src/*": "${webRoot}/*", // 该行代码存在时，会出现vue文件断点定位错位的问题，但可正常使用js文件的断点调试
+            "webpack:///*": "*",
+            "webpack:///./~/*": "${webRoot}/node_modules/*",
+            "meteor:///app/*": "${webRoot}/*"
+        }
+        },
+    ]
+}

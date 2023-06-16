@@ -1,0 +1,5 @@
+Page{
+    background:linear-gradient(135deg, rgb(237, 223, 255) 20%, rgb(200, 233, 216) 100%);
+    /* 将背景颜色固定，防止滚屏时出现颜色分层 */
+    background-attachment: fixed
+}

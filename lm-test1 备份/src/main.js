@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App'
-// import './style.css'
+import './style.css'
 
 
 Vue.config.productionTip = false
@@ -15,4 +15,4 @@ Vue.prototype.globalData = getApp().globalData
 
 //初始默认值，调试应用时没有从welcome页面进入就使用初始默认值
 getApp().globalData.avatarUrl = require('../src/assets/visitor.png')
-getApp().globalData.nickName = '未授权'
+getApp().globalData.nickName = '未登录'

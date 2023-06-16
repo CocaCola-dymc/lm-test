@@ -31,7 +31,7 @@
             
         </map>
         <!-- 范围距离选择器 -->
-        <van-popup :show="choose_flag" position="bottom">
+        <van-popup :show="choose_flag" round position="bottom">
             <van-picker 
                 show-toolbar
                 title="请选择范围距离" 
@@ -67,6 +67,12 @@ export default {
             polygons:[],
             circles:[],
             polyline:[],
+            callout: "",
+
+            data: '',
+            GPS: '',
+            longitudes: '',
+            latitudes: '',
         }
     },
     methods:{
@@ -138,20 +144,14 @@ export default {
             //如果点击了显示历史轨迹
             if(this.show_flag){
                 //显示历史轨迹
-                let a = Math.random()*0.001
-                const polyline = {
-                    points:
-                    [
-                        {longitude:this.longitude-a,latitude:this.latitude+a},  
-                        {longitude:this.longitude-a,latitude:this.latitude-a},  
-                        {longitude:this.longitude+a,latitude:this.latitude-a},  
-                        {longitude:this.longitude+a,latitude:this.latitude+a},  
-                    ],
-                    color: '#aaa',
+                let polyline = {
+                    points: this.points,
+                    color: '#000',
                     width:2
                 }
                 this.polyline.push(polyline)
-
+                
+            
                 //循环显示历史轨迹的点上做标记点
                 for(var i=0;i<polyline.points.length;i++){
                     const marker = {
@@ -167,21 +167,28 @@ export default {
             }else{
                 this.polyline = []
                 this.markers = [{
-                            id: 0,
-                            longitude:this.longitude,
-                            latitude:this.latitude,
-                            width:20,
-                            height:32,
-                        }]
+                    id: 0,
+                    longitude:this.longitude,
+                    latitude:this.latitude,
+                    width:20,
+                    height:32,
+                    title: '当前位置'
+                }]
             }
-            
-            
         }
     },
     onLoad(){
         //精确值
         // latitude:  23.102934
         // longitude: 113.535982
+
+        //地图第一次加载需要时间，使用Toast提示
+        wx.showToast({
+            title: '加载地图中',
+            icon: 'loading',
+            duartion: 1000,
+            mask: true
+        })
         wx.getLocation({
             type:'gcj02',
             altitude: true,
@@ -200,33 +207,64 @@ export default {
                             latitude:this.latitude,
                             width:20,
                             height:32,
+                            title: '当前位置',
                         }
                 this.markers.push(marker)
             }
             
+        }),
+
+
+        // this.longitude = 113.535982
+        // this.latitude = 23.102934
+        // //中心点放置marker
+        // const marker = {
+        //     id: 0,
+        //     longitude:this.longitude,
+        //     latitude:this.latitude,
+        //     width:20,
+        //     height:32,
+        // }
+        // this.markers.push(marker)
+
+
+
+        wx.request({
+            // url: baseUrl + `/LMsy.php?action=read`,
+            url: baseUrl + `/lm/doFindLms`,
+            methods: 'GET',
+            // header: { 'content-type': 'application/x-www-form-urlencoded'},
+            success:(res)=>{
+                let data = res.data.users;
+                //先将data中的GPS成员分割成经纬度，在放入data中变成data的成员
+                for(let i=0;i<data.length;i++){
+                    let str = data[i].GPS
+                    data[i].longitude = str.split(' ')[1]   //经度
+                    data[i].latitude  = str.split(' ')[0]   //纬度
+                }
+                this.data = data;
+
+                //历史轨迹所经过的点
+                let points = [];
+                let point;
+                //取最后的10个点作为历史点位
+                for(let i=data.length-10;i<data.length;i++){
+                    point = {};     //每一次循环都将point清空一下
+                    point.longitude = this.data[i].longitude;
+                    point.latitude = this.data[i].latitude;
+                    points.push(point)
+                }
+                this.points = points;
+                console.log(this.points)
+                
+            }
         })
 
-        // wx.request({
-            
-        //     url: baseUrl + `/LM.php`,
-        //     methods: 'GET',
-        //     header: { 'content-type': 'application/x-www-form-urlencoded'},
+    },
 
-        //     success:(res)=>{
-        //         let msg = JSON.parse(JSON.stringify(res.data));
-        //         console.log(res.data)
-        //         console.log(msg.uesrs)
-        //         // 将获取的数据转化为字符串
-        //         const str = (msg.uesrs[msg.uesrs.length-1].GPS).toString();
-        //         console.log(str);
-        //         // 根据空格分隔字符
-        //         this.center.lng = str.split(' ')[1];//经度
-        //         this.center.lat = str.split(' ')[0];//纬度
-        //         console.log(this.center.lng);
-        //         console.log(this.center.lat);
-        //     }
-        // })
-
+    onShow(){
+        //初始化为2d地图，并且每次加载默认值为2d地图
+        this.satellite_flag = false
     }
 
 }

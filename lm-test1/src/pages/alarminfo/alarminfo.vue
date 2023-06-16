@@ -5,6 +5,7 @@
             <span class="text">{{ data.length }}</span>
             <span class="count">报警次数：</span>
             <span class="text">{{ alarm }}</span>
+            <van-button round class="search" icon="search" @click="onSearch"></van-button>
         </div>
         <div class="tabledata">
             <van-row class="title">
@@ -12,7 +13,7 @@
                 <van-col offset="6" span="4">设备号</van-col>
                 <van-col offset="3" span="5">报警状态</van-col>
             </van-row>
-            <van-row class="border">—————————————————————————————————</van-row>
+            <van-row class="border">—————————————————————————————————————</van-row>
             <van-row class="table" v-for="(item,index) in dataList" :key="index" @click="onShow(index)">
                 <van-col offset="0" span="8">{{ item.time }}</van-col>
                 <van-col offset="2" span="6">{{ item.devicename }}</van-col>
@@ -22,7 +23,7 @@
                 <van-col offset="1" span="3" v-if="index == chooseIndex && show_flag">
                     <van-button type="danger" size="mini" @click="onDelete(item,index)">删除</van-button>
                 </van-col>
-                <van-row class="border">—————————————————————————————————</van-row>
+                <van-row class="border">—————————————————————————————————————</van-row>
           </van-row>
         </div>
         
@@ -38,6 +39,8 @@ export default {
     data () {
         return {
             data: '',
+            value: '',
+            search_flag: false,
             alarm: 0,
             dataList: [],           //页面渲染时存放的数据
 			_dataList: null,        //接口传来的数据存放数组
@@ -48,6 +51,9 @@ export default {
         }
     },
     methods:{
+        onSearch(){
+            this.search_flag = !this.search_flag
+        },
         //获取点击的记录的index，存入chooseIndex中
         onShow(index){
             //设置一个标志位，实现点击一次显示删除按钮，再点击一次隐藏按钮
@@ -55,6 +61,7 @@ export default {
             this.chooseIndex = index
         },
         onDelete(item,index){
+            // item.id = Number(item.id)
             wx.showModal({
                 title: '删除',
                 content: '确定删除该信息吗？',
@@ -124,6 +131,11 @@ export default {
                 }
             }
         })
+    },
+
+    //卸载页面时将当前页面恢复成第一页，防止重新加载页面时不会往下刷新
+    onUnload(){
+        this.currentPageNum = 1
     },
 
     onReachBottom(){
@@ -206,6 +218,13 @@ export default {
 }
 .van-button{
     height: 5px;
+}
+
+.search .van-button{
+    width: 40px;
+    height: 40px;
+    margin-left: 50px;
+    opacity: 0.7;
 }
 
 </style>

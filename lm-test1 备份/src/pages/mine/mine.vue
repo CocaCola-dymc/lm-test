@@ -22,6 +22,7 @@
       description="要退出登陆吗?"
       @close="onClose"
       @select="onSelect"
+      @cancel="onCancel"
     />
   </div>
 </template>
@@ -32,7 +33,6 @@
 export default {
   data () {
     return {
-      username: '',
       show: false,
       actions:[{name:'退出登录',color:'#ee0a24'}],
       avatarUrl: '',
@@ -61,6 +61,10 @@ export default {
       this.show = false   //点击屏幕关闭退出提示
     },
 
+    onCancel(){
+      this.show = false   //点击取消时关闭面板
+    },
+
     onSelect(){
       wx.showToast({
         title: '已退出登录',
@@ -87,7 +91,6 @@ export default {
 
 <style scoped>
 .box_user{
-  background-color: white;
   border-bottom: 1px solid #ccc;
   height: 240rpx;
   display: flex;
@@ -102,7 +105,6 @@ export default {
   font-weight: bold;
 }
 .box{
-  background-color: white;
   height: 120rpx;
   display: flex;
   align-items: center;
