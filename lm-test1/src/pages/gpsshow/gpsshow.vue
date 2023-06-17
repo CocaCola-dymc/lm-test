@@ -230,8 +230,8 @@ export default {
 
 
         wx.request({
-            // url: baseUrl + `/LMsy.php?action=read`,
-            url: baseUrl + `/lm/doFindLms`,
+            url: baseUrl + `/LMsy.php?action=read`,
+            // url: baseUrl + `/lm/doFindLms`,
             methods: 'GET',
             // header: { 'content-type': 'application/x-www-form-urlencoded'},
             success:(res)=>{

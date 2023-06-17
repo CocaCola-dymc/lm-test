@@ -1,11 +1,11 @@
 {
   "pages": [
-    "pages/alarminfo/main",
-    "pages/index/main",
     "pages/gpsshow/main",
+    "pages/index/main",
+    "pages/alarminfo/main",
+    "pages/showmsg/main",
     "pages/welcome/main",
     "pages/mine/main",
-    "pages/showmsg/main",
     "pages/settings/main",
     "pages/information/main"
   ],
