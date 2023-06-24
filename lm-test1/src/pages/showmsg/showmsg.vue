@@ -4,7 +4,7 @@
         <van-tabs :active="active">
 
             <!-- 内容1 -->
-            <van-tab title="风速风向">
+            <van-tab title="基本数据">
                 <!-- 风速风向盒子 -->
                 <div class="windybox">
                     <!-- 风速 -->
@@ -30,16 +30,13 @@
                             <div class="winddirection-img">
                                 <img src="../../assets/windydirection.png" alt="">
                             </div>
-                            <div class="windirection-data">
+                            <div class="winddirection-data">
                                 <p>{{ winddirection }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </van-tab>
 
-            <!-- 内容2 -->
-            <van-tab title="温度湿度">
                 <!-- 温湿度盒子 -->
                 <div class="humietcbox">
                     <!-- 温度盒子 -->
@@ -71,10 +68,7 @@
                         </div>
                     </div>
                 </div>
-            </van-tab>
 
-            <!-- 内容3 -->
-            <van-tab title="PM指数">
                 <!-- PM盒子 -->
                 <div class="PM-vnhbox">
                     <div class="pm1box">
@@ -104,15 +98,12 @@
                         </div>
                     </div>
                 </div>
-            </van-tab>
 
-            <!-- 内容4 -->
-            <van-tab title="大气压强">
                 <!-- 气压噪声盒子 hPa:百帕 -->
                 <div class="atmo-nhvbox">
                     <div class="atmopressbox">
                         <div class="atmopress-name">
-                            <p>大气压(hPa):</p>
+                            <p>大气压强(hPa):</p>
                         </div>
                         <div class="atmopress-content">
                             <div class="atmopress-img">
@@ -126,7 +117,7 @@
                     <!-- 噪声盒子 -->
                     <div class="nvhbox">
                         <div class="nvh-name">
-                            <p>噪声(dB):</p>
+                            <p>环境噪声(dB):</p>
                         </div>
                         <div class="nvh-content">
                             <div class="nvh-img">
@@ -139,6 +130,7 @@
                     </div>
                 </div>
             </van-tab>
+
 
             <!-- 内容5 -->
             <van-tab title="气体数据">
@@ -193,7 +185,7 @@
                         </div>
                         <div class="h2sbox">
                             <div class="h2scolorbox"></div>
-                            <h3>硫化氢Y(H₂S)浓度(%)：</h3>
+                            <h3>硫化氢(H₂S)浓度(%)：</h3>
                             <p>{{ h2s }}</p>
                         </div>
                     </div>
@@ -283,6 +275,14 @@
 //数据库地址
 const baseUrl = "http://112.124.28.149";
 
+//mqtt地址
+import { connect } from "mqtt";
+const mqttHost = "112.124.28.149";
+const mqttPort = "8083";
+const mqttUrl = `wx://${mqttHost}:${mqttPort}/mqtt`;
+
+const msgTopic = "msg_topic";     //订阅的信息主题 
+
 export default {
     data () {
         return {
@@ -306,6 +306,8 @@ export default {
             h2s: 0,
             // echarts,
             // onInit: initChart   
+            client: {},
+            dataFromDev: {}
         }
     },
 
@@ -318,31 +320,72 @@ export default {
     },
 
     onLoad(){
-        wx.request({
-            url: baseUrl + `/LMhj.php?action=read`,
-            methods: 'GET',
-            success:(res)=>{
-                let data = res.data.users;
-                let i = data.length-1;
-                //取数据库中最后一条数据
-                this.windspeed = data[i].windspeed;
-                this.winddirection = data[i].winddirection;
-                this.temp = data[i].temp;
-                this.humidity = data[i].humidity;
-                this.pm2_5 = data[i].pm2_5;
-                this.pm10 = data[i].pm10;
-                this.atmos = data[i].atmos;
-                this.noisy = data[i].noisy;
-                this.o2 = data[i].o2;
-                this.co2 = data[i].co2;
-                this.ch4 = data[i].ch4;
-                this.nh3 = data[i].nh3;
-                this.so2 = data[i].so2;
-                this.co = data[i].co;
-                this.h2o = data[i].h2o;
-                this.h2s = data[i].h2s;
+        // wx.request({
+        //     url: baseUrl + `/LMhj.php?action=read`,
+        //     methods: 'GET',
+        //     success:(res)=>{
+        //         let data = res.data.users;
+        //         let i = data.length-1;
+        //         //取数据库中最后一条数据
+        //         this.windspeed = data[i].windspeed;
+        //         this.winddirection = data[i].winddirection;
+        //         this.temp = data[i].temp;
+        //         this.humidity = data[i].humidity;
+        //         this.pm2_5 = data[i].pm2_5;
+        //         this.pm10 = data[i].pm10;
+        //         this.atmos = data[i].atmos;
+        //         this.noisy = data[i].noisy;
+        //         this.o2 = data[i].o2;
+        //         this.co2 = data[i].co2;
+        //         this.ch4 = data[i].ch4;
+        //         this.nh3 = data[i].nh3;
+        //         this.so2 = data[i].so2;
+        //         this.co = data[i].co;
+        //         this.h2o = data[i].h2o;
+        //         this.h2s = data[i].h2s;
+        //     }
+        // })
+
+        var that = this;
+        //连接MQTT
+        that.client = connect(mqttUrl)
+        //连接成功时返回的信息
+        that.client.on("connect",function(){
+            console.log("connect successd!")
+        })
+        //订阅信息主题
+        that.client.subscribe(msgTopic,function(err){
+            if(!err){
+                console.log('成功订阅msgTopic')
             }
         })
+        //接受topic的信息并且打印
+        that.client.on("message",(topic,message)=>{
+            //message是16进制的Buffered字节流,使用dataFromDev接受传来的message
+            let dataFromDev = {}
+            dataFromDev = JSON.parse(message)
+            // console.log(dataFromDev)
+            // this.dataFromDev = dataFromDev
+            this.windspeed = dataFromDev.windspeed
+            this.winddirection = dataFromDev.winddirection
+            this.temp = dataFromDev.temp
+            this.humidity = dataFromDev.humidity
+            this.pm2_5 = dataFromDev.pm2_5
+            this.pm10 = dataFromDev.pm10
+            this.atmos = dataFromDev.atmos
+            this.noisy = dataFromDev.noisy 
+            this.o2 = dataFromDev.o2
+            this.co2 = dataFromDev.co2  
+            this.ch4 = dataFromDev.ch4
+            this.nh3 = dataFromDev.nh3
+            this.so2 = dataFromDev.so2
+            this.co = dataFromDev.co
+            this.h2o = dataFromDev.h2o
+            this.h2s = dataFromDev.h2s
+            // {"windspeed":10, "winddirection":30, "temp":30, "humidity":90, "pm2_5": 23.6, "pm10":10.3, "atmos":1020.3, "noisy":60, "o2":21.3, "co2":0.04, "ch4":1.02, "nh3":0.23, "so2":0.44, "co":0.05, "h2o":37.5, "h2s":0.01}
+        })
+
+
     }
 
 }
@@ -355,10 +398,10 @@ export default {
 }
 .windybox{
     display: flex;
-    width: 300px;
+    width: 350px;
     height: 105px;
     /* margin的顺序：上右下左 */
-    margin: 20px 0 10px 37.5px;     
+    margin: 40px 0 20px 12.5px;     
     /* background-color: #000; */
     background: linear-gradient(145deg,rgb(22, 177, 249),rgb(137, 210, 244));
     border-radius: 20px;
@@ -423,7 +466,7 @@ export default {
     width: 90%;
     height: 35px;
     /* background-color: #fff; */
-    margin-left: 8px;
+    margin-left: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -437,7 +480,7 @@ export default {
     display: flex;
 }
 .winddirection-img{
-    width: 40px;
+    width: 50px;
     height: 100%;
 }
 .winddirection-img img{
@@ -445,22 +488,22 @@ export default {
     height: 45px;
     margin-top: 10px;
 }
-.windirection-data{
+.winddirection-data{
     width: 90px;
     height: 100%;
     /* background-color: #fac3bd; */
     display: flex;
 }
-.windirection-data p{
+.winddirection-data p{
     word-break: break-all;
     margin-left: 3px;
     font-size: 32px;
     margin-top: 10px;
 }
 .humietcbox{
-    width: 300px;
+    width: 350px;
     height: 105px;
-    margin: 20px 0 10px 37.5px;
+    margin: 40px 0 20px 12.5px;
     /* background-color: #000; */
     background: linear-gradient(145deg,#fac3bd,#f4cfcb);
     border-radius: 20px;
@@ -469,7 +512,7 @@ export default {
     /* margin-top: 10px; */
 }
 .tempbox{
-    width: 150px;
+    width: 175px;
     height: 100%;
     /* background-color: #000; */
     border-top-left-radius: 20px;
@@ -479,7 +522,7 @@ export default {
     width: 90%;
     height: 35px;
     /* background-color: #fff; */
-    margin-left: 8px;
+    margin-left: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -539,7 +582,7 @@ export default {
 .humi-img{
     width: 50px;
     height: 100%;
-    margin-left: 5px;
+    /* margin-left: 10px; */
 }
 .humi-img img{
     width: 40px;
@@ -558,9 +601,9 @@ export default {
     font-size: 32px;
 }
 .PM-vnhbox{
-    width: 360px;
+    width: 350px;
     height: 105px;
-    margin: 20px 0 10px 7.5px;
+    margin: 40px 0 20px 12.5px;
     background: linear-gradient(145deg,rgb(252, 193, 83),rgb(249, 212, 143));
     border-radius: 20px;
     display: flex;
@@ -576,7 +619,7 @@ export default {
 .pm1-name{
     width: 90%;
     height: 35px;
-    margin-left: 8px;
+    margin-left: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -649,9 +692,9 @@ export default {
 }
 .atmo-nhvbox{
     display: flex;
-    width: 340px;
+    width: 350px;
     height: 105px;
-    margin: 20px 0 10px 17.5px; 
+    margin: 40px 0 20px 12.5px; 
     background: linear-gradient(145deg,#c275fe,#ddb5fc);
     border-radius: 20px;
     box-shadow: 0 7px 5px 0 rgb(196, 151, 211);

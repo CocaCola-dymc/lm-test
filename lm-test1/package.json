@@ -26,6 +26,7 @@
     "@vant/touch-emulator": "^1.4.0",
     "@vant/weapp": "^1.10.18",
     "mpvue": "^2.0.0",
+    "mqtt": "^2.18.9",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
